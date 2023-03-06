@@ -1,0 +1,12 @@
+.active {
+  
+  text-decoration: none;
+  color: yellow;
+  background-color: gray;
+}
+
+.passive {
+  text-decoration: none;
+  color: gray;
+  background-color: white;
+}

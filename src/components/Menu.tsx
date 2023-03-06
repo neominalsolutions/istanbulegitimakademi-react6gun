@@ -14,6 +14,8 @@ export default function Menu({}: Props) {
         <Link to="about"> Hakkımızda </Link>
         &nbsp;
         <Link to="contact"> İletişim </Link>
+        &nbsp;
+        <Link to="admin">Admin Page</Link>
       </nav>
     </Fragment>
   );

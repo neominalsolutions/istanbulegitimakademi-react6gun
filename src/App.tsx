@@ -1,11 +1,20 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { Link, useNavigate, useRoutes } from "react-router-dom";
+import { Link, useLocation, useNavigate, useRoutes } from "react-router-dom";
 import Layout from "./components/Layout";
-import HomePage from "./pages/HomePage";
-import AboutPage from "./pages/AboutPage";
-import ContactPage from "./pages/ContactPage";
+
+import Footer from "./components/Footer";
+import Map from "./components/Map";
+import AdminLayout from "./components/AdminLayout";
+import DashboardPage from "./pages/admin/DashboardPage";
+import HomePage from "./pages/site/HomePage";
+import AboutPage from "./pages/site/AboutPage";
+import ContactPage from "./pages/site/ContactPage";
+import UserPage from "./pages/admin/UserPage";
+import UserDetailPage from "./pages/admin/UserDetailPage";
+import LoginPage from "./pages/site/LoginPage";
+import { AuthGuard } from "./guards/AuthGuard";
 
 function App() {
   // useRoutes hook ile uygulama içerisindeki sayfaları tanımlıyoruz.
@@ -24,6 +33,9 @@ function App() {
   // alt alta route tanımlaması yöntemine nested route diyoruz
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  console.log("location", location);
 
   const onGotoHome = () => {
     let result = window.confirm("Anasayfaya gitmek istediğinize emin misiniz?");
@@ -49,13 +61,70 @@ function App() {
         },
         {
           path: "about",
-          element: <AboutPage />,
+          element: <AboutPage />, // self closing tag
         },
         {
           path: "contact",
-          element: <ContactPage />,
+          // element: <ContactPage />,
+          element: (
+            <ContactPage>
+              {/* open close tag format */}
+              {/* kendi componetimiz içerine bir element göndermek istersek bu formatı kullanıp children olarak props üzerinden bu işlemi yapacağımızı söylememiz lazım */}
+              {/* <p>İletişim Haritası</p>
+              <p>Lokasyon Bilgileri</p> */}
+              <Map />
+              {/* map bizim için bir child component */}
+              <hr></hr>
+              <h1>İstanbul Haritalar</h1>
+              {/* child element */}
+            </ContactPage>
+          ),
         },
       ],
+    },
+    {
+      path: "admin",
+      element: (
+        // eğer authguard kodundan geçerse admin layout altındaki tüm componentlere erişim sağlar. geçemez ise bizi logine otomatik yönlendirir.
+        <AuthGuard>
+          <AdminLayout />
+        </AuthGuard>
+      ),
+      children: [
+        {
+          path: "",
+          element: <DashboardPage />,
+        },
+        {
+          path: "users", // static route
+          element: <UserPage />,
+          children: [
+            // admin/users/name route değeri ortaya çıkar
+            {
+              path: ":name", // artık ali değerini name ismi ile yakalayacağız // mvc routing /users/{id} // dynamic route
+              element: <UserDetailPage />, // Nested Layout yapısı
+            },
+          ],
+        },
+        // {
+        //   path: "users/:name", // artık ali değerini name ismi ile yakalayacağız // mvc routing /users/{id} // dynamic route
+        //   element: <UserDetailPage />,
+        // },
+      ],
+    },
+    {
+      path: "login",
+      element: <LoginPage />,
+    },
+    {
+      path: "unauthorize", // admin sayfalarına giderken eğer token bilgim yoksa buradaki unauthorize denilen linke yönleneceğim
+      element: (
+        <>
+          <h1>Bu sayfaya yetkiniz yok !!!</h1>
+          <br></br>
+          <Link to="/login">Oturum Aç</Link>
+        </>
+      ),
     },
     {
       path: "*", // bu route değerini tüm route değerlerinin sonuna yazmayı unutmayalım.
